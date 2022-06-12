@@ -30,7 +30,7 @@ Lighthouse can automatically parse your HTML and render all `code` blocks.
 <html lang="en">
 <head>
   <!-- ... -->
-  <script src="lighthouse-api.dev/cdn/latest.min.js"></script>
+  <script src="lighthouse-api.dev/cdn/auto.latest.min.js"></script>
   <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
 </head>
 <body>
@@ -57,7 +57,7 @@ Any XML/HTML cannot be easily rendered without `&lt;` because otherwise it will 
 <html lang="en">
 <head>
   <!-- ... -->
-  <script src="lighthouse-api.dev/cdn/latest.min.js"></script>
+  <script src="lighthouse-api.dev/cdn/auto.latest.min.js"></script>
   <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
 </head>
 <body>
@@ -79,7 +79,7 @@ C++ or *practically* any programming with generics have this pitfall.
 <html lang="en">
 <head>
   <!-- ... -->
-  <script src="lighthouse-api.dev/cdn/latest.min.js"></script>
+  <script src="lighthouse-api.dev/cdn/auto.latest.min.js"></script>
   <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
 </head>
 <body>
@@ -127,7 +127,7 @@ Without said, this is the most annoying way of writing code, ever. The indentati
 <html lang="en">
 <head>
   <!-- ... -->
-  <script src="lighthouse-api.dev/cdn/latest.min.js"></script>
+  <script src="lighthouse-api.dev/cdn/auto.latest.min.js"></script>
   <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
 </head>
 <body>
@@ -154,4 +154,66 @@ const fixed = Lighthouse.removeWhitespace({
   indents: 0
 }, code);
 // ...
+```
+
+#### Pitfall #4: No API Calls
+This doesn't allow you to use any info outside your HTML files. Self-explanatory.
+
+### Method 2: JavaScript Generator
+Lighthouse also has a JavaScript API which can be used to request HTML straight from the API. It comes as the main JavaScript.
+
+*How to setup Lighthouse.js`
+
+Header:
+
+```html
+<!-- ... -->
+<head>
+  <script src="lighthouse-api.dev/cdn/latest.min.js"></script>
+  <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
+</head>
+<!-- ... -->
+<code id="foo"></code>
+```
+JavaScript for the page:
+```js
+// ...
+const Lighthouse = new Lighthouse({
+  mode: 'html', // see all options at lighthouse-api.dev/options
+  theme: 'github-dark',
+  lang: 'js'
+});
+
+
+// Warning! element.innerHtml() is unsafe, avoid using!
+document.getElementbyId('foo').innerHTML = Lighthouse.getHTMLString(`
+function foo(bar) {
+  return bar*bar;
+}
+`); // for actual DOM elements, use Lighthouse.getHTML()
+```
+
+This will generate a code-block that can be used. 
+
+### Method 3: Using Lighthouse's built-in `arrayBind` function
+
+`arrayBind` takes all the `<code>` blocks in the order which they appear in the DOM and fills them in with the sanitized, rendered HTML.
+
+```js
+// ...
+const Lighthouse = new Lighthouse({
+  mode: 'html', // see all options at lighthouse-api.dev/options
+  theme: 'github-dark',
+  lang: 'js'
+});
+
+const codeArr = [
+  `console.log("Hello world!");`,
+  `function f(x) {
+    return x + 'I am the Ubermensch!';
+  };`,
+  `return x;`
+];
+
+Lighthouse.arrayBind(codeArr);
 ```
