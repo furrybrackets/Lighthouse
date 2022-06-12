@@ -1,0 +1,14 @@
+{
+  "name": "Lighthouse",
+  "version": "1.0.0",
+  "description": "API for code-highlighting.",
+  "main": "main.js",
+  "repository": "https://github.com/furrybrackets/Lighthouse.git",
+  "author": "Peter Johnson <integral.sketch@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "fastify": "^4.0.1",
+    "shiki": "^0.10.1"
+  }
+}
