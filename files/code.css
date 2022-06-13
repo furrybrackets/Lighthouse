@@ -15,7 +15,7 @@ pre {
  comes at the line level so that background
  colors extend edge to edge.
 */
-pre code.lighthouse {
+pre code {
     display: block;
     min-width: -webkit-max-content;
     min-width: -moz-max-content;
@@ -28,7 +28,7 @@ pre code.lighthouse {
  Horizontal line padding to match the vertical
  padding from the code block above.
 */
-pre code.lighthouse .line {
+pre code .line {
     padding-left: 1rem;
     padding-right: 1rem;
 }
@@ -36,8 +36,8 @@ pre code.lighthouse .line {
 /*
  Push the code away from the line numbers.
 */
-pre code.lighthouse .line-number,
-pre code.lighthouse {
+pre code .line-number,
+pre code {
     margin-right: 1rem;
 }
 
@@ -45,7 +45,7 @@ pre code.lighthouse {
   Blur and dim the lines that don't have the `.line-focus` class,
   but are within a code block that contains any focus lines.
 */
-.lighthouse.has-focus .line:not(.line-focus) {
+.has-focus .line:not(.line-focus) {
     transition: filter 0.35s, opacity 0.35s;
     filter: blur(.095rem);
     opacity: .65;
@@ -54,7 +54,7 @@ pre code.lighthouse {
 /*
   When the code block is hovered, bring all the lines into focus.
 */
-.lighthouse.has-focus:hover .line:not(.line-focus) {
+.has-focus:hover .line:not(.line-focus) {
     filter: blur(0px);
     opacity: 1;
 }

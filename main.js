@@ -1,5 +1,5 @@
 const Fastify = require('fastify')({
-    logger: true
+    logger: false
   })
 
 const getHTML = require('./highlight').getHTML;
