@@ -10,44 +10,60 @@ properties: {
           lang: { type: 'string' },
           lineNumbers: { type: 'boolean' },
           fileTheme: { type: 'string' },
-          langSpec: { type: 'string' }
         }
 ...
 */
-function getHTML(options) {
+async function getHTML(options) {
     let Theme;
     let error;
     let LangSpec;
+    /*
+    
     fs.readFile(`themes/${process.env.DEFAULTTHEME}.json`, (err, dat) => {
         if (err) {
-            error = new Error('An unknown error occured.');
+            error = 'An unknown error occured.';
         };
         Theme = JSON.parse(dat.toString());
     });
+
+    */
+    
     if (!options.code) {
-        error = new Error('You need to attach code to highlight.');
+        error = 'You need to attach code to highlight.';
     };
     if (!options.theme) {
         if (fileTheme) {
             Theme = options.fileTheme;     
         }
     } else {
-        fs.readFile(`themes/${options.theme}.json`, (err, dat) => {
-            if (err) {
-                error = new Error('An unknown error occured.');
-            };
-            Theme = JSON.parse(dat.toString());
-        });
-    };
-    if (options.langSpec) {
-        
+        Theme = options.theme | process.env.DEFAULTHEME;
+       /* 
+       Theme = 'github-dark';
+       */
     };
 
     const lineNum = options.lineNumbers;
     const lang = options.lang;
 
-    const highlight = shiki.getHighlighter({
-        theme: Theme,
+    const highlight = await shiki.getHighlighter({
+        theme: Theme
+    });
 
-    })
-}
+    /*
+    const diffLines = diffLines(code);
+    const highlights = highlights(code);
+    */
+
+    const primitive = highlight.codeToHtml(options.code, lang);
+
+    /*
+    if (lineNum) {
+
+    }
+    */
+   return  {html: primitive, error: (error ? true : false ), errorVal: error ? error: '' };
+};
+
+module.exports = {
+    getHTML: getHTML
+};

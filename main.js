@@ -1,8 +1,8 @@
 const Fastify = require('fastify')({
     logger: true
   })
-const bodyParser = require('body-parser');
-const fs = require('fs');
+
+const getHTML = require('./highlight').getHTML;
 
 
 const highlightOpts = {
@@ -15,7 +15,6 @@ const highlightOpts = {
           lang: { type: 'string' },
           lineNumbers: { type: 'boolean' },
           fileTheme: { type: 'string' },
-          langSpec: { type: 'string' }
         }
       },
       response: {
@@ -23,7 +22,8 @@ const highlightOpts = {
           type: 'object',
           properties: {
             html: { type: 'string' },
-            error: { type: 'boolean' }
+            error: { type: 'boolean' },
+            errorVal: { type: 'string' }
           }
         }
       }
@@ -32,7 +32,7 @@ const highlightOpts = {
 
 
 Fastify.post('/api/highlight', highlightOpts, async (req, res) => {
-    return { html: 'world', error: false };
+    return await getHTML(req.body);
 })
 
 const start = async () => {
