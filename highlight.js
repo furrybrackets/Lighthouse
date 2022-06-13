@@ -51,21 +51,21 @@ async function getHTML(options) {
     let minusFG;
     let minusBG;
 
-    const src = await JSON.parse(fs.readFileSync('./themes/github-dark.json'));
+    const src = await JSON.parse(fs.readFileSync(`./themes/${options.theme}.json`));
 
-    for (let i = 0; i<src.tokenColors.length; i++) {
-        let curr = src.tokenColors[i];
-        if (Array.isArray(curr.scope) && curr.scope[0] == 'markup.deleted') {
-            minusFG = curr.settings.foreground;
-            minusBG = curr.settings.background;
-        };
-    };
 
     const linecolors = src.colors["editorLineNumber.foreground"];
 
     console.log(linecolors);
 
-    const bgcolor = src.colors["editor.background"];
+    let bgcolor = src.colors["editor.background"];
+
+    console.log(`${options.theme}: ${bgcolor}`)
+
+    if (src.tokenColors[0].settings.background) {
+        console.log(src.tokenColors[0].settings.background);
+        bgcolor = src.tokenColors[0].settings.background;
+    }
 
     // split html up by lines (\n) since <pre>
 
@@ -73,16 +73,15 @@ async function getHTML(options) {
 
     primitiveLines = primitiveLines.map((el, index) => {
         if (index == 0) {
-                let noPre = el.replace(`<pre class="shiki" style="background-color: ${bgcolor}"><code>`, '');
+                let noPre = el.replace(`<pre class="shiki" style="background-color: ${bgcolor}">`, '').replace('<code>', '');
                 return `<pre class="shiki" style="background-color: ${bgcolor}"><code><span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>${noPre}`;
         } else {
+            if (index == 1) {
+                console.log(`<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>${el}`)
+            }
             return `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>${el}`;
         }
     });
-
-    console.log(primitiveLines);
-
-    console.log(primitiveLines.join('\n'));
     
    return  {html: primitiveLines.join('\n'), error: (error ? true : false ), errorVal: error ? error: '' };
 };

@@ -2,6 +2,8 @@ const Fastify = require('fastify')({
     logger: false
   })
 
+  Fastify.register(require('@fastify/cors'));
+
 const getHTML = require('./highlight').getHTML;
 
 
