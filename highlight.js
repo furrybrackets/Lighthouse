@@ -34,7 +34,7 @@ async function getHTML(options) {
        */
     };
 
-    const lineNum = options.lineNumbers;
+    const lineNum = options.lineNumbers  || true;
     const lang = options.lang;
 
     const highlight = await shiki.getHighlighter({
@@ -74,12 +74,9 @@ async function getHTML(options) {
     primitiveLines = primitiveLines.map((el, index) => {
         if (index == 0) {
                 let noPre = el.replace(`<pre class="shiki" style="background-color: ${bgcolor}">`, '').replace('<code>', '');
-                return `<pre class="shiki" style="background-color: ${bgcolor}"><code><span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>${noPre}`;
+                return `<pre class="shiki" style="background-color: ${bgcolor}"><code>` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${noPre}`;
         } else {
-            if (index == 1) {
-                console.log(`<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>${el}`)
-            }
-            return `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>${el}`;
+            return (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${el}`;
         }
     });
     

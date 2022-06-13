@@ -1,5 +1,5 @@
 const Fastify = require('fastify')({
-    logger: false
+    logger: true
   })
 
   Fastify.register(require('@fastify/cors'));
