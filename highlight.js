@@ -1,6 +1,7 @@
 const shiki = require('shiki');
 const fs = require('fs');
-const diffLines = require('./extras.js');
+const diffLines = require('./extras.js').diffLines;
+const highlights = require('./extras.js').highlights;
 const HTMLParser = require('node-html-parser');
 
 /* 
@@ -48,9 +49,7 @@ async function getHTML(options) {
     });
 
     const difflines = diffLines(options.code);
-    /*
-    const highlights = highlights(code);
-    */
+    const Highlights = highlights(options.code);
 
     const primitive = highlight.codeToHtml(options.code, lang);
 
@@ -90,54 +89,71 @@ async function getHTML(options) {
 
     primitiveLines = primitiveLines.map((el, index) => {
         if (index == 0) {
-                let noPre = el.replace(`<pre class="shiki" style="background-color: ${bgcolor}">`, '').replace('<code>', '').replace(`[lh! +]`, '').replace(`[lh! -]`, '');
+                let noPre = el.replace(`<pre class="shiki" style="background-color: ${bgcolor}">`, '').replace('<code>', '').replace(`[lh! +]`, '').replace(`[lh! -]`, '').replace('[lh! fc]');
                 if (difflines.positions.includes(1)) {
                     const type = difflines.types[0];
                     let root = HTMLParser.parse(noPre);
                     for (let i = 0; i<root.childNodes.length; i++) {
                         for (let j = 0; j<root.childNodes[i].childNodes.length; j++) {
                             root.childNodes[i].childNodes[j].rawAttrs = `style=color:${plusminus(type) ? plusFG : minusFG}`;
+                            root.childNodes[i].rawAttrs = `class="line ${Highlights.length == 0 ? '' : 'line-focus'}"`;
+                            // root.childNodes[i]._rawAttrs.class = root.childNodes[i]._rawAttrs.class + Highlights.includes(index+1) ? 'line-focus' : '';
                         }
                     };
                     noPre = root.toString();
         
-                    return `<pre class="shiki" style="background-color: ${bgcolor}"><code>` + `<div style="background-color:${plusminus(type) ? plusBG : minusBG} !important; display: inline;" class="line">` + (lineNum ? `<span class="line-number" style="color:${plusminus(type) ? plusFG : minusFG}; text-align: right; -webkit-user-select: none; user-select: none;">${difflines.types[0]}</span>` : '') + `${noPre}` + `</span>` + `</div>`;
+                    return `<pre class="shiki ${Highlights.length == 0 ? '' : 'has-focus'}" style="background-color: ${bgcolor}"><code>` + `<div style="background-color:${plusminus(type) ? plusBG : minusBG} !important; display: inline;" class="line ${Highlights.includes(index+1) ? 'line-focus' : ''}">` + (lineNum ? `<span class="line-number" style="color:${plusminus(type) ? plusFG : minusFG}; text-align: right; -webkit-user-select: none; user-select: none;">${difflines.types[0]}</span>` : '') + `${noPre}` + `</span>` + `</div>`;
                 } else {
-                    return `<pre class="shiki" style="background-color: ${bgcolor}"><code>` + `<div class="line">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${noPre}` + '</div>';
+                    let root = HTMLParser.parse(noPre.replace(`[lh! +]`, '').replace(`[lh! -]`, '').replace('[lh! fc]'));
+                    for (let i = 0; i<root.childNodes.length; i++) {
+                            root.childNodes[i].rawAttrs = `class="line ${Highlights.length == 0 ? '' : 'line-focus'}"`;
+                            // root.childNodes[i]._rawAttrs.class = root.childNodes[i]._rawAttrs.class + Highlights.includes(index+1) ? 'line-focus' : '';
+                    };
+                    noPre = root.toString();
+                    return `<pre class="shiki" style="background-color: ${bgcolor}"><code>` + `<div class="line ${Highlights.includes(index+1) ? 'line-focus' : ''}">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${noPre}` + '</div>';
                 }
         } else {
             if (difflines.positions.includes(index+1)) {
                 const type = difflines.types[difflines.positions.indexOf(index+1)];
                 difflines.types[difflines.positions.indexOf(index+1)];
-                let str = (lineNum ? `<span class="line-number" style="color:${plusminus(type) ? plusFG : minusFG}; text-align: right; -webkit-user-select: none; user-select: none;">${difflines.types[difflines.positions.indexOf(index+1)]}</span>` : '');
-                let nEl = el.replace(`[lh! +]`, '').replace(`[lh! -]`, '');
+                let str = (lineNum ? `<span class="line-number ${Highlights.includes(index+1) ? 'line-focus' : ''}" style="color:${plusminus(type) ? plusFG : minusFG}; text-align: right; -webkit-user-select: none; user-select: none;">${difflines.types[difflines.positions.indexOf(index+1)]}</span>` : '');
+                let nEl = el.replace(`[lh! +]`, '').replace(`[lh! -]`, '').replace('[lh! fc]');
                 let root = HTMLParser.parse(nEl);
                 for (let i = 0; i<root.childNodes.length; i++) {
                     for (let j = 0; j<root.childNodes[i].childNodes.length; j++) {
                         root.childNodes[i].childNodes[j].rawAttrs = `style=color:${plusminus(type) ? plusFG : minusFG}`;
+                        root.childNodes[i].rawAttrs = `class="line ${Highlights.length == 0 ? '' : 'line-focus'}"`;
+                        // root.childNodes[i]._rawAttrs.class = root.childNodes[i]._rawAttrs.class + Highlights.includes(index+1) ? 'line-focus' : '';
                     }
                 };
                 nEl = root.toString();
-                return `<div style="background-color:${plusminus(type) ? plusBG : minusBG} !important; color:${plusminus(type) ? plusFG : minusFG} !important; display: inline;" class="line"` + str + nEl + '</div>';
+                return `<div style="background-color:${plusminus(type) ? plusBG : minusBG} !important; color:${plusminus(type) ? plusFG : minusFG} !important; display: inline;" class="line ${Highlights.includes(index+1) ? 'line-focus' : ''}"` + str + nEl + '</div>';
             }
             if (el.includes(`</code>`)) {
                 // remove the </code></pre>
-                let noEnd = el.replace('</code></pre>')
+                let noEnd = el.replace('</code></pre>').replace(`[lh! +]`, '').replace(`[lh! -]`, '').replace('[lh! fc]');
                 
                 if (difflines.positions.includes(index+1)) {
                     const type = difflines.types[difflines.positions.indexOf(index+1)];
-                    noEnd = el.replace(`[lh! +]`, '').replace(`[lh! -]`, '');
+                    noEnd = el;
                     let root = HTMLParser.parse(noEnd);
                     for (let i = 0; i<root.childNodes.length; i++) {
                         for (let j = 0; j<root.childNodes[i].childNodes.length; j++) {
                             root.childNodes[i].childNodes[j].rawAttrs = `style=color:${plusminus(type) ? plusFG : minusFG}`;
+                            root.childNodes[i]._rawAttrs.class = root.childNodes[i]._rawAttrs.class + Highlights.includes(index+1) ? 'line-focus' : '';
                         }
                     };
                     noEnd = root.toString();
                 }
-                return `<div class="line">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + noEnd.replace(undefined, '') + '</div>' + '</code></pre>';
+                return `<div class="line ${Highlights.includes(index+1) ? 'line-focus' : ''}">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + noEnd.replace(undefined, '') + '</div>' + '</code></pre>';
             }
-            return `<div class="line">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${el}` + '</div>';
+            let root = HTMLParser.parse(el.replace(`[lh! +]`, '').replace(`[lh! -]`, '').replace('[lh! fc]'));
+            for (let i = 0; i<root.childNodes.length; i++) {
+                    root.childNodes[i].rawAttrs = `class="line ${Highlights.length == 0 ? '' : 'line-focus'}"`;
+                    // root.childNodes[i]._rawAttrs.class = root.childNodes[i]._rawAttrs.class + Highlights.includes(index+1) ? 'line-focus' : '';
+            };
+            let newEl = root.toString();
+            return `<div class="line ${Highlights.includes(index+1) ? 'line-focus' : ''}">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${newEl}` + '</div>';
         }
     });
 

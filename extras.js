@@ -23,4 +23,19 @@ function diffLines(code) {
     return posObj;
 };
 
-module.exports = diffLines;
+function highlights(code) {
+    const lines = code.split('\n');
+    let positions = [];
+    // find lines until you see [lh! fc]
+    for (let i = 0; i<lines.length; i++) {
+        if (lines[i].includes('[lh! fc]')) {
+            positions.push(i+1);
+        };
+    };
+    return positions;
+}
+
+module.exports = {
+    diffLines: diffLines,
+    highlights: highlights
+};
