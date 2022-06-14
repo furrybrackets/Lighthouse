@@ -31,7 +31,7 @@ async function getHTML(options) {
         error = 'You need to attach code to highlight.';
     };
     if (!options.theme) {
-        if (fileTheme) {
+        if (options.fileTheme) {
             Theme = options.fileTheme;     
         }
     } else {
@@ -110,7 +110,7 @@ async function getHTML(options) {
                             // root.childNodes[i]._rawAttrs.class = root.childNodes[i]._rawAttrs.class + Highlights.includes(index+1) ? 'line-focus' : '';
                     };
                     noPre = root.toString();
-                    return `<pre class="shiki ${Highlights.length == 0 ? '' : 'has-focus'}" style="background-color: ${bgcolor}"><code>` + `<div class="line ${Highlights.includes(index+1) ? 'line-focus' : ''}">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${noPre}` + '</div>';
+                    return `<pre class="shiki ${Highlights.length == 0 ? '' : 'has-focus'}" style="background-color: ${bgcolor}"><code>` + `<div class="line ${Highlights.includes(index+1) ? 'line-focus' : ''} ">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${noPre}` + '</div>';
                 }
         } else {
             if (difflines.positions.includes(index+1)) {
