@@ -86,32 +86,56 @@ async function getHTML(options) {
 
     let primitiveLines = primitive.split('\n');
 
+
     primitiveLines = primitiveLines.map((el, index) => {
         if (index == 0) {
                 let noPre = el.replace(`<pre class="shiki" style="background-color: ${bgcolor}">`, '').replace('<code>', '').replace(`[lh! +]`, '').replace(`[lh! -]`, '');
                 if (difflines.positions.includes(1)) {
-                    return `<pre class="shiki" style="background-color: ${bgcolor}"><code>` + (lineNum ? `<span class="line-number" style="color:${minusFG}; text-align: right; -webkit-user-select: none; user-select: none;">${difflines.types[0]}</span>` : '') + `<span style="background-color:${minusBG}; color:${minusFG}">` + `${noPre}` + `</span>`;
+                    let root = HTMLParser.parse(noPre);
+                    for (let i = 0; i<root.childNodes.length; i++) {
+                        for (let j = 0; j<root.childNodes[i].childNodes.length; j++) {
+                            root.childNodes[i].childNodes[j].rawAttrs = `style=color:${minusFG}`;
+                        }
+                    };
+                    noPre = root.toString();
+                    return `<pre class="shiki" style="background-color: ${bgcolor}"><code>` + `<div style="background-color:${minusBG} !important; display: inline;" class="line">` + (lineNum ? `<span class="line-number" style="color:${minusFG}; text-align: right; -webkit-user-select: none; user-select: none;">${difflines.types[0]}</span>` : '') + `${noPre}` + `</span>` + `</div>`;
                 } else {
-                    return `<pre class="shiki" style="background-color: ${bgcolor}"><code>` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${noPre}`;
+                    return `<pre class="shiki" style="background-color: ${bgcolor}"><code>` + `<div class="line">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${noPre}` + '</div>';
                 }
         } else {
             if (difflines.positions.includes(index+1)) {
                 let str = (lineNum ? `<span class="line-number" style="color:${minusFG}; text-align: right; -webkit-user-select: none; user-select: none;">${difflines.types[difflines.positions.indexOf(index+1)]}</span>` : '');
                 let nEl = el.replace(`[lh! +]`, '').replace(`[lh! -]`, '');
                 let root = HTMLParser.parse(nEl);
-                console.log(root.childNodes[0]);
                 for (let i = 0; i<root.childNodes.length; i++) {
                     for (let j = 0; j<root.childNodes[i].childNodes.length; j++) {
                         root.childNodes[i].childNodes[j].rawAttrs = `style=color:${minusFG}`;
                     }
                 };
                 nEl = root.toString();
-                console.log(nEl);
                 return `<div style="background-color:${minusBG} !important; color:${minusFG} !important; display: inline;" class="line"` + str + nEl + '</div>';
+            }
+            if (el.includes(`</code>`)) {
+                // remove the </code></pre>
+                let noEnd = el.replace('</code></pre>');
+                
+                if (difflines.positions.includes(index+1)) {
+                    noEnd = el.replace(`[lh! +]`, '').replace(`[lh! -]`, '');
+                    let root = HTMLParser.parse(noEnd);
+                    for (let i = 0; i<root.childNodes.length; i++) {
+                        for (let j = 0; j<root.childNodes[i].childNodes.length; j++) {
+                            root.childNodes[i].childNodes[j].rawAttrs = `style=color:${minusFG}`;
+                        }
+                    };
+                    noEnd = root.toString();
+                }
+                return `<div class="line">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + noEnd.replace(undefined, '') + '</div>' + '</code></pre>';
             }
             return `<div class="line">` + (lineNum ? `<span class="line-number" style="color:${linecolors}; text-align: right; -webkit-user-select: none; user-select: none;">${index+1}</span>` : '') + `${el}` + '</div>';
         }
     });
+
+    console.log(primitiveLines[31]);
     
    return  {html: primitiveLines.join('\n'), error: (error ? true : false ), errorVal: error ? error: '' };
 };
