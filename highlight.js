@@ -77,7 +77,7 @@ async function getHTML(options) {
                 minusBG = curr.settings.background || src.colors["diffEditor.removedTextBackground"];
             } else if ((Array.isArray(curr.scope) && curr.scope[0] == 'markup.inserted') || curr.scope == 'markup.inserted') {
                 plusFG = curr.settings.foreground;
-                plusBG = curr.settings.background;
+                plusBG = curr.settings.background || src.colors["diffEditor.insertedTextBackground"];
             }
     };
     
@@ -111,7 +111,7 @@ async function getHTML(options) {
                 }
         } else {
             if (difflines.positions.includes(index+1)) {
-                const type = difflines.types[0];
+                const type = difflines.types[difflines.positions.indexOf(index+1)];
                 difflines.types[difflines.positions.indexOf(index+1)];
                 let str = (lineNum ? `<span class="line-number" style="color:${plusminus(type) ? plusFG : minusFG}; text-align: right; -webkit-user-select: none; user-select: none;">${difflines.types[difflines.positions.indexOf(index+1)]}</span>` : '');
                 let nEl = el.replace(`[lh! +]`, '').replace(`[lh! -]`, '');
@@ -130,7 +130,7 @@ async function getHTML(options) {
                 let noEnd = el.replace('</code></pre>')
                 
                 if (difflines.positions.includes(index+1)) {
-                    const type = difflines.type[0];
+                    const type = difflines.types[difflines.positions.indexOf(index+1)];
                     noEnd = el.replace(`[lh! +]`, '').replace(`[lh! -]`, '');
                     let root = HTMLParser.parse(noEnd);
                     for (let i = 0; i<root.childNodes.length; i++) {
