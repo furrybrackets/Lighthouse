@@ -4,9 +4,6 @@ Syntax highlighting API for everyone.
 ## How does Lighthouse work?
 Lighthouse works by using VSCode syntax highlighting and shipping you already generated HTML.
 
-### How fast is Lighthouse?
-Lighthouse is fast, like *crazy* fast. It uses [`rayo.js`](https://github.com/GetRayo/rayo.js), a super-fast JavaSript HTTP framework.
-
 ## Getting Started
 Lighthouse is completely free, forever. It provides you with an API for getting pre-styled HTML.
 
@@ -17,9 +14,19 @@ Lighthouse is completely free, forever. It provides you with an API for getting 
   <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
 </head>
 <!-- ... -->
+<script>
+  const lh = Lighthouse.Lighthouse({
+    lang: 'javascript', // default: 'javascript'
+    lineNumbers: true, // default: false
+    theme: 'github-dark', // default: 'material-palenight',
+    // api: 'https://someapi.dev', (default is Lighthouse API website)
+    // In Node.js:
+    // fileTheme: JSON.parse(fs.readFileSync('./theme'))
+  })
+</script>
 ```
 
-This will then allow you to make requests to the CDN using Lighthouse.
+This will then allow you to make requests using Lighthouse.
 
 ### Method 1: Auto
 
@@ -30,18 +37,30 @@ Lighthouse can automatically parse your HTML and render all `code` blocks.
 <html lang="en">
 <head>
   <!-- ... -->
-  <script src="lighthouse-api.dev/cdn/auto.latest.min.js"></script>
+  <script src="lighthouse-api.dev/cdn/latest.min.js"></script>
   <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
 </head>
+<script>
+  const lh = Lighthouse.Lighthouse({
+    lang: 'javascript', // default: 'javascript'
+    lineNumbers: true, // default: false
+    theme: 'github-dark', // default: 'material-palenight',
+    // api: 'https://someapi.dev', (default is Lighthouse API website)
+    // In Node.js:
+    // fileTheme: JSON.parse(fs.readFileSync('./theme'))
+  })
+  
+  lh.fillCodeBlocks();
+</script>
 <body>
   <!-- stuff before your first code block -->
   <pre>
-    <code lang="js" fixwhitespace="true">
-      function foo(bar) {
-        return bar*bar;
-      }
+    <code lang="js">
+function foo(bar) {
+    return bar*bar;
+};
       
-      console.log(foo(3));
+console.log(foo(3));
     </code>
   </pre>
 </body>
@@ -57,7 +76,7 @@ Any XML/HTML cannot be easily rendered without `&lt;` because otherwise it will 
 <html lang="en">
 <head>
   <!-- ... -->
-  <script src="lighthouse-api.dev/cdn/auto.latest.min.js"></script>
+  <script src="lighthouse-api.dev/cdn/latest.min.js"></script>
   <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
 </head>
 <body>
@@ -79,7 +98,7 @@ C++ or *practically* any programming with generics have this pitfall.
 <html lang="en">
 <head>
   <!-- ... -->
-  <script src="lighthouse-api.dev/cdn/auto.latest.min.js"></script>
+  <script src="lighthouse-api.dev/cdn/latest.min.js"></script>
   <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
 </head>
 <body>
@@ -116,45 +135,7 @@ fn main() {
 ```
 
 #### Pitfall #3: Annoying
-Without said, this is the most annoying way of writing code, ever. The indentation problem is solved with a parameter, though.
-
-##### `fixwhitespace`
-`fixwhitespace` will remove any starting newlines (`\n`) and also will take the number of indents and/or spaces from line `1` and remove them from each line.
-
-*Example of `fixwhitespace`.
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!-- ... -->
-  <script src="lighthouse-api.dev/cdn/auto.latest.min.js"></script>
-  <link href="lighthouse-api.dev/cdn/latest.min.css" rel="stylesheet">
-</head>
-<body>
-  <!-- stuff before your first code block -->
-  <pre>
-    <code lang="js" fixwhitespace="true">
-      function foo(bar) {
-        return bar*bar;
-      }
-      
-      console.log(foo(3));
-    </code>
-  </pre>
-</body>
-```
-This will remove any prefixed `\n` (only 1 in this case) and find the number of standard spaces and indents (`{ spaces: 6, indents: 0 }`) and subtract them from each line before converting to `html`. This preserves any other indents for syntax formatting while not having unnecessary indents on each line.
-
-*What Lighthouse sees.*
-```js
-// ...
-const fixed = Lighthouse.removeWhitespace({
-  newlines: 1,
-  spaces: 6,
-  indents: 0
-}, code);
-// ...
-```
+Without said, this is the most annoying way of writing code, ever.
 
 #### Pitfall #4: No API Calls
 This doesn't allow you to use any info outside your HTML files. Self-explanatory.
@@ -178,42 +159,20 @@ Header:
 JavaScript for the page:
 ```js
 // ...
-const Lighthouse = new Lighthouse({
-  mode: 'html', // see all options at lighthouse-api.dev/options
-  theme: 'github-dark',
-  lang: 'js'
-});
+ const lh = Lighthouse.Lighthouse({
+    lang: 'javascript', // default: 'javascript'
+    lineNumbers: true, // default: false
+    theme: 'github-dark', // default: 'material-palenight',
+    // api: 'https://someapi.dev', (default is Lighthouse API website)
+    // In Node.js:
+    // fileTheme: JSON.parse(fs.readFileSync('./theme'))
+})
+  
+// to get HTML
 
-
-// Warning! element.innerHtml() is unsafe, avoid using!
-document.getElementbyId('foo').innerHTML = Lighthouse.getHTMLString(`
-function foo(bar) {
-  return bar*bar;
-}
-`); // for actual DOM elements, use Lighthouse.getHTML()
+lh.getHTML(`return x;`).then(html => {
+  do.something(html);
+})
 ```
 
 This will generate a code-block that can be used. 
-
-### Method 3: Using Lighthouse's built-in `arrayBind` function
-
-`arrayBind` takes all the `<code>` blocks in the order which they appear in the DOM and fills them in with the sanitized, rendered HTML.
-
-```js
-// ...
-const Lighthouse = new Lighthouse({
-  mode: 'html', // see all options at lighthouse-api.dev/options
-  theme: 'github-dark',
-  lang: 'js'
-});
-
-const codeArr = [
-  `console.log("Hello world!");`,
-  `function f(x) {
-    return x + 'I am the Ubermensch!';
-  };`,
-  `return x;`
-];
-
-Lighthouse.arrayBind(codeArr);
-```
