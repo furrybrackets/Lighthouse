@@ -48,7 +48,6 @@ async function getHTML(options) {
     });
 
     const difflines = diffLines(options.code);
-    console.log(difflines);
     /*
     const highlights = highlights(code);
     */
@@ -65,11 +64,9 @@ async function getHTML(options) {
 
     const linecolors = src.colors["editorLineNumber.foreground"] || src.colors["editor.foreground"];
 
-    console.log(linecolors);
 
     let bgcolor = src.colors["editor.background"];
 
-    console.log(`${options.theme}: ${bgcolor}`)
     for (let i = 0; i<src.tokenColors.length; i++) {
             let curr = src.tokenColors[i];
             if ((Array.isArray(curr.scope) && curr.scope[0] == 'markup.deleted') || curr.scope == 'markup.deleted') {
@@ -83,7 +80,6 @@ async function getHTML(options) {
     
 
     if (src.tokenColors[0].settings.background) {
-        console.log(src.tokenColors[0].settings.background);
         bgcolor = src.tokenColors[0].settings.background;
     }
 
@@ -118,7 +114,6 @@ async function getHTML(options) {
                 let root = HTMLParser.parse(nEl);
                 for (let i = 0; i<root.childNodes.length; i++) {
                     for (let j = 0; j<root.childNodes[i].childNodes.length; j++) {
-                        console.log(type);
                         root.childNodes[i].childNodes[j].rawAttrs = `style=color:${plusminus(type) ? plusFG : minusFG}`;
                     }
                 };
@@ -146,7 +141,6 @@ async function getHTML(options) {
         }
     });
 
-    console.log(primitiveLines[31]);
     
    return  {html: primitiveLines.join('\n'), error: (error ? true : false ), errorVal: error ? error: '' };
 };
