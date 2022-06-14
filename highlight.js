@@ -158,7 +158,7 @@ async function getHTML(options) {
     });
 
     
-   return  {html: primitiveLines.join('\n'), error: (error ? true : false ), errorVal: error ? error: '' };
+   return  {html: primitiveLines.join('\n'), error: (error ? true : false ), errorType: error ? error: '' };
 };
 
 module.exports = {

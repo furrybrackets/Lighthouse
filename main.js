@@ -25,7 +25,7 @@ const highlightOpts = {
           properties: {
             html: { type: 'string' },
             error: { type: 'boolean' },
-            errorVal: { type: 'string' }
+            errorType: { type: 'string' }
           }
         }
       }
