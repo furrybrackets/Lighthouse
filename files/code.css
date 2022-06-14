@@ -22,6 +22,7 @@ pre code {
     min-width: max-content;
     padding-top: 1rem;
     padding-bottom: 1rem;
+    line-height: 140%;
 }
  
 /*
@@ -30,15 +31,21 @@ pre code {
 */
 pre code .line {
     padding-left: 1rem;
-    padding-right: 1rem;
-    width: 100%;
+    padding-right: 100%;
+    min-width: max-content;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    border-bottom-style: solid;
+    border-bottom-width: 0px;
+    border-image-slice: 100%;
 }
  
 /*
- Push the code away from the line numbers.
+ Push the code away from the line numbers and
+ summary caret indicators.
 */
 pre code .line-number,
-pre code {
+pre code .summary-caret {
     margin-right: 1rem;
 }
 
@@ -58,4 +65,8 @@ pre code {
 .has-focus:hover .line:not(.line-focus) {
     filter: blur(0px);
     opacity: 1;
+}
+
+div {
+  display: inline;
 }
